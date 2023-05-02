@@ -5,7 +5,7 @@
         "type": "hot",
         "price": 2.50,
         "waitTime": 6,
-        "image": "/public/coffee/black-coffee.jpg"
+        "image": "/coffee/black-coffee.jpg"
     },
     {
         "title": "Latte",
@@ -13,7 +13,7 @@
         "type": "hot",
         "price": 4.00,
         "waitTime": 15,
-        "image": "/public/coffee/latte.jpg"
+        "image": "/coffee/latte.jpg"
     },
     {
         "title": "Cappuccino",
@@ -21,7 +21,7 @@
         "type": "hot",
         "price": 4.50,
         "waitTime": 15,
-        "image": "/public/coffee/cappuccino.jpg"
+        "image": "/coffee/cappuccino.jpg"
     },
     {
         "title": "Iced Coffee",
@@ -29,7 +29,7 @@
         "type": "iced",
         "price": 3.00,
         "waitTime": 8,
-        "image": "/public/coffee/iced-coffee.jpg"
+        "image": "/coffee/iced-coffee.jpg"
     },
     {
         "title": "Iced Latte",
@@ -37,6 +37,6 @@
         "type": "iced",
         "price": 4.50,
         "waitTime": 10,
-        "image": "/public/coffee/iced-latte.jpg"
+        "image": "/coffee/iced-latte.jpg"
     }
 ]
