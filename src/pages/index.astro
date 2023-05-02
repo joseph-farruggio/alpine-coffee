@@ -1,81 +1,129 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Card from '../components/Card.astro';
+import ActiveOrder from '../components/ActiveOrder.astro';
+import menu from '../data/menu.json';
 ---
 
 <Layout title="Welcome to Astro.">
-	<main>
-		<h1>Welcome to <span class="text-gradient">Astro</span></h1>
-		<p class="instructions">
-			To get started, open the directory <code>src/pages</code> in your project.<br />
-			<strong>Code Challenge:</strong> Tweak the "Welcome to Astro" message above.
-		</p>
-		<ul role="list" class="link-card-grid">
-			<Card
-				href="https://docs.astro.build/"
-				title="Documentation"
-				body="Learn how Astro works and explore the official API docs."
-			/>
-			<Card
-				href="https://astro.build/integrations/"
-				title="Integrations"
-				body="Supercharge your project with new frameworks and libraries."
-			/>
-			<Card
-				href="https://astro.build/themes/"
-				title="Themes"
-				body="Explore a galaxy of community-built starter themes."
-			/>
-			<Card
-				href="https://astro.build/chat/"
-				title="Community"
-				body="Come say hi to our amazing Discord community. ❤️"
-			/>
-		</ul>
+	<main class="flex gap-32 justify-center">
+		<div id="menu" x-data class="space-y-4 w-96">
+			<div class="relative text-center">
+				<span class="text-center text-slate-200 bg-slate-950 relative z-10 px-4">The Menu</span>
+				<div class="h-px w-full bg-slate-800 absolute top-3"></div>
+			</div>
+			<div class="divide-y divide-slate-900">
+				{menu.map(drink => (
+				<button  
+					x-on:click={`$dispatch('order-added', ${JSON.stringify(drink)})`}
+					class="flex items-center gap-4 px-4 py-8 text-left transition hover:bg-slate-900/60">
+					<img src={drink.image} alt={drink.title} class="h-20 w-20 rounded-full">
+					
+					<div>
+						<h2 class="font-bold text-lg text-slate-300">{drink.title}</h2>
+						<p class="text-slate-500 line-clamp-2">{drink.description}</p>
+						<div class="flex items-center gap-4 text-slate-300 mt-2">
+							<span>Price: ${drink.price}</span>
+							<span>Time: {drink.waitTime} seconds</span>
+						</div>
+					</div>
+				</button>
+			))}
+			</div>
+		</div>
+
+		<div id="queue" x-data="queue" class="flex gap-32"  @order-added.window="addToQueue($event.detail)">
+			<div class="space-y-4 w-96">
+				<div class="relative text-center">
+					<span class="text-center text-slate-200 bg-slate-950 relative z-10 px-4">Queued Orders</span>
+					<div class="h-px w-full bg-slate-800 absolute top-3"></div>
+				</div>
+				<template x-if="queue">
+					<template x-for="item in queue">
+						<div class="flex items-center gap-4 rounded-lg border border-slate-800 bg-slate-900 p-4 text-left text-slate-200">
+							<span x-text="item.title"></span>
+						</div>
+					</template>
+				</template>
+			</div>
+			<div class="space-y-4 w-96">
+				<div class="relative text-center">
+					<span class="text-center text-slate-200 bg-slate-950 relative z-10 px-4">Active Orders</span>
+					<div class="h-px w-full bg-slate-800 absolute top-3"></div>
+				</div>
+				
+				<ActiveOrder itemRef="activeOrders[0]" baristaName="Barista #1" /> 
+				<ActiveOrder itemRef="activeOrders[1]" baristaName="Barista #2" /> 
+				<ActiveOrder itemRef="activeOrders[2]" baristaName="Trainee (50% slower)" /> 
+			
+			</div>
+			
+		</div>
 	</main>
 </Layout>
 
-<style>
-	main {
-		margin: auto;
-		padding: 1.5rem;
-		max-width: 60ch;
-	}
-	h1 {
-		font-size: 3rem;
-		font-weight: 800;
-		margin: 0;
-	}
-	.text-gradient {
-		background-image: var(--accent-gradient);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-size: 400%;
-		background-position: 0%;
-	}
-	.instructions {
-		line-height: 1.6;
-		margin: 1rem 0;
-		border: 1px solid rgba(var(--accent), 25%);
-		background-color: white;
-		padding: 1rem;
-		border-radius: 0.4rem;
-	}
-	.instructions code {
-		font-size: 0.875em;
-		font-weight: bold;
-		background: rgba(var(--accent), 12%);
-		color: rgb(var(--accent));
-		border-radius: 4px;
-		padding: 0.3em 0.45em;
-	}
-	.instructions strong {
-		color: rgb(var(--accent));
-	}
-	.link-card-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(24ch, 1fr));
-		gap: 1rem;
-		padding: 0;
-	}
-</style>
+<script>
+	import Alpine from 'alpinejs'
+
+	Alpine.data('queue', () => ({
+		queue: [],
+		activeOrders: {
+			0: null,
+			1: null,
+			2: null
+		},
+
+		addToQueue(item) {
+			
+			// Only three active orders can be worked on at a time
+			let foundNull = false
+			for (const [key, value] of Object.entries(this.activeOrders)) {
+				if (value === null) {
+					this.activeOrders[key] = item
+					let wait = parseInt(key) === 2 ? (item.waitTime * 1000) * 1.5 : item.waitTime * 1000
+					setTimeout( function() {
+						this.completeOrder(key)
+					}.bind(this), wait)
+					foundNull = true
+					return
+				}
+				
+			}
+
+			if (!foundNull) {
+				this.queue.push(item)
+			}
+			
+		},
+
+		completeOrder(id) {
+			console.log('complete order', id)
+			// Remove the order from the active orders
+			this.activeOrders[id] = null
+
+			if (this.queue.length > 0) {
+				let foundNull = false
+				for (const [key, value] of Object.entries(this.activeOrders)) {
+					if (value === null) {
+						let item = this.queue[0]
+						setTimeout( function() {
+							this.queue.shift()
+							this.activeOrders[key] = item
+						}.bind(this), 300)
+
+						setTimeout( function() {
+							this.completeOrder(key)
+						}.bind(this), item.waitTime * 1000)
+						
+						foundNull = true
+						return
+					}
+				}
+				
+			}
+				
+			
+		}
+
+		
+	}))
+  </script>

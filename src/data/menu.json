@@ -1,0 +1,42 @@
+[
+    {
+        "title": "Black Coffee",
+        "description": "Our classic black coffee, made with freshly brewed Arabica beans.",
+        "type": "hot",
+        "price": 2.50,
+        "waitTime": 6,
+        "image": "/public/coffee/black-coffee.jpg"
+    },
+    {
+        "title": "Latte",
+        "description": "Smooth espresso combined with steamed milk and a layer of foam.",
+        "type": "hot",
+        "price": 4.00,
+        "waitTime": 15,
+        "image": "/public/coffee/latte.jpg"
+    },
+    {
+        "title": "Cappuccino",
+        "description": "Equal parts espresso, steamed milk, and foam, topped with a sprinkle of cocoa powder.",
+        "type": "hot",
+        "price": 4.50,
+        "waitTime": 15,
+        "image": "/public/coffee/cappuccino.jpg"
+    },
+    {
+        "title": "Iced Coffee",
+        "description": "Our classic black coffee, served over ice.",
+        "type": "iced",
+        "price": 3.00,
+        "waitTime": 8,
+        "image": "/public/coffee/iced-coffee.jpg"
+    },
+    {
+        "title": "Iced Latte",
+        "description": "Smooth espresso combined with cold milk and poured over ice.",
+        "type": "iced",
+        "price": 4.50,
+        "waitTime": 10,
+        "image": "/public/coffee/iced-latte.jpg"
+    }
+]
