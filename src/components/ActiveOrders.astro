@@ -1,0 +1,76 @@
+---
+import Order from '../components/Order.astro'
+---
+
+<div class="space-y-4 w-96">
+	<div class="relative text-center">
+		<span class="text-center text-slate-200 bg-slate-950 relative z-10 px-4">Active Orders</span>
+		<div class="h-px w-full bg-slate-800 absolute top-3"></div>
+	</div>
+	
+	<Order itemRef="activeOrders[0]" baristaName="Barista #1" /> 
+	<Order itemRef="activeOrders[1]" baristaName="Barista #2" /> 
+	<Order itemRef="activeOrders[2]" baristaName="Trainee (50% slower)" /> 
+</div>
+
+<script>
+	import Alpine from 'alpinejs'
+
+	Alpine.data('queue', () => ({
+		queue: [],
+		activeOrders: {
+			0: null,
+			1: null,
+			2: null
+		},
+
+		addToQueue(item) {
+			
+			// Only three active orders can be worked on at a time
+			let foundNull = false
+			for (const [key, value] of Object.entries(this.activeOrders)) {
+				if (value === null) {
+					this.activeOrders[key] = item
+					let wait = parseInt(key) === 2 ? (item.waitTime * 1000) * 1.5 : item.waitTime * 1000
+					setTimeout( function() {
+						this.completeOrder(key)
+					}.bind(this), wait)
+					foundNull = true
+					return
+				}
+				
+			}
+
+			if (!foundNull) {
+				this.queue.push(item)
+			}
+			
+		},
+
+		completeOrder(id) {
+			
+			// Remove the order from the active orders
+			this.activeOrders[id] = null
+
+			if (this.queue.length > 0) {
+				let foundNull = false
+				for (const [key, value] of Object.entries(this.activeOrders)) {
+					if (value === null) {
+						let item = this.queue[0]
+						setTimeout( function() {
+							this.queue.shift()
+							this.activeOrders[key] = item
+						}.bind(this), 300)
+
+						setTimeout( function() {
+							this.completeOrder(key)
+						}.bind(this), item.waitTime * 1000)
+						
+						foundNull = true
+						return
+					}
+				}	
+			}	
+		}
+	}))
+  </script>
