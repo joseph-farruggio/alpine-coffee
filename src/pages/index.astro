@@ -33,7 +33,7 @@ import menu from '../data/menu.json'
 			</div>
 		</div>
 
-		<div id="queue" x-data="queue" class="flex gap-32"  @order-added.window="addToQueue($event.detail)">
+		<div id="queue" x-data="queue" class="flex gap-32"  @order-added.window="makeCoffee($event.detail)">
 			<Queue />
 			
 			<ActiveOrders />

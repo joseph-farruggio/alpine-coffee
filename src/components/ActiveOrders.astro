@@ -8,39 +8,104 @@ import Order from '../components/Order.astro'
 		<div class="h-px w-full bg-slate-800 absolute top-3"></div>
 	</div>
 	
-	<Order itemRef="activeOrders[0]" baristaName="Barista #1" /> 
-	<Order itemRef="activeOrders[1]" baristaName="Barista #2" /> 
-	<Order itemRef="activeOrders[2]" baristaName="Trainee (50% slower)" /> 
+	<template x-for="(barista, index) in ['Barista #1', 'Barista #2', 'Trainee (50% slower)']">
+		<div class="">
+			<span class="bg-cyan-400/10 text-cyan-300 px-3 py-1 rounded-full ring-1 ring-instet ring-cyan-400/30" x-text="barista"></span>
+			<div class="border border-slate-800 bg-slate-900 p-4 rounded-lg h-28 text-slate-50 mt-3">
+				<template x-if="activeOrders[index]">
+					<div 
+						class="h-full"
+						x-show="activeOrders[index].title"
+						x-transition:enter="transition ease-out duration-300 transform"
+						x-transition:enter-start="-translate-y-2 opacity-0"
+						x-transition:enter-end="translate-y-0 opacity-100"
+						x-transition:leave="transition ease-in duration-300 transform"
+						x-transition:leave-start="translate-y-0 opacity-100"
+						x-transition:leave-end="-translate-y-2 opacity-0">
+						<div class="flex flex-col justify-between h-full">
+							<span x-text="activeOrders[index].title"></span>
+							<span class="text-slate-500" x-text="`Customer: ${randomeName()}`"></span>
+
+							<div class="w-full bg-cyan-900 h-2 rounded-lg">
+								<div 
+									class="progress-bar bg-cyan-400 w-full h-full rounded-lg" 
+									x-bind:style="index < 2 ?  `animation-duration: ${activeOrders[index].waitTime * 1}s` : `animation-duration: ${activeOrders[index].waitTime * 1.5}s`"></div>
+							</div>
+						</div>
+					</div>
+				</template>
+			</div>
+			
+		</div>
+	</template>
 </div>
+
+<style>
+    .progress-bar {
+        animation-name: decreaseWidth;
+        animation-fill-mode: backwards;
+    }
+
+    @keyframes decreaseWidth {
+        from {
+            width: 0%;
+        }
+        to {
+            width: 100%;
+        }
+    }
+</style>
 
 <script>
 	import Alpine from 'alpinejs'
 
 	Alpine.data('queue', () => ({
 		queue: [],
+
 		activeOrders: {
 			0: null,
 			1: null,
 			2: null
 		},
 
-		addToQueue(item) {
-			
+		makeCoffee(item = null) {
 			// Only three active orders can be worked on at a time
+			// Loop through the baristas and find one that is available
 			let foundNull = false
 			for (const [key, value] of Object.entries(this.activeOrders)) {
-				if (value === null) {
-					this.activeOrders[key] = item
-					let wait = parseInt(key) === 2 ? (item.waitTime * 1000) * 1.5 : item.waitTime * 1000
+				// If barista is not available, skip
+				if (value !== null) {
+					continue
+				}
+
+				foundNull = true
+				
+				// Found a barista that is available
+				// Set item to the first item in the queue if one wasn't passed in
+				if (item === null) {
+					item = this.queue[0]
+
+					// Create delay for the order to be made
 					setTimeout( function() {
-						this.completeOrder(key)
-					}.bind(this), wait)
-					foundNull = true
-					return
+						this.queue.shift()
+						this.activeOrders[key] = item
+					}.bind(this), 300)
+				} else {
+					this.activeOrders[key] = item
 				}
 				
+				// Set wait for the order to be completed
+				// Trainee is 50% slower
+				let wait = parseInt(key) === 2 ? (item.waitTime * 1000) * 1.5 : item.waitTime * 1000
+				
+				// Complete the order after the wait time
+				setTimeout( function() {
+					this.completeOrder(key)
+				}.bind(this), wait)
+				break
 			}
 
+			// No baristas are available, add the order to the queue
 			if (!foundNull) {
 				this.queue.push(item)
 			}
@@ -48,29 +113,42 @@ import Order from '../components/Order.astro'
 		},
 
 		completeOrder(id) {
-			
 			// Remove the order from the active orders
 			this.activeOrders[id] = null
 
+			// If there are any orders in the queue, make the next one
 			if (this.queue.length > 0) {
-				let foundNull = false
-				for (const [key, value] of Object.entries(this.activeOrders)) {
-					if (value === null) {
-						let item = this.queue[0]
-						setTimeout( function() {
-							this.queue.shift()
-							this.activeOrders[key] = item
-						}.bind(this), 300)
-
-						setTimeout( function() {
-							this.completeOrder(key)
-						}.bind(this), item.waitTime * 1000)
-						
-						foundNull = true
-						return
-					}
-				}	
+				this.makeCoffee()
 			}	
+		},
+
+		// Random first and last name
+		randomeName() {
+			const firstNames = [
+				'Emma',
+				'Noah',
+				'Olivia',
+				'Liam',
+				'Ava',
+				'William',
+				'Sophia',
+				'Mason',
+				'Isabella',
+				'James',
+				'Mia',
+				'Benjamin',
+				'Charlotte',
+				'Jacob',
+				'Amelia',
+				'Michael',
+				'Harper',
+				'Elijah',
+				'Evelyn',
+				'Ethan'
+			]
+			
+
+			return `${firstNames[Math.floor(Math.random() * firstNames.length)]}`
 		}
 	}))
   </script>
