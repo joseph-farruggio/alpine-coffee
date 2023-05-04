@@ -2,12 +2,13 @@
 import Layout from '../layouts/Layout.astro'
 import Queue from '../components/Queue.astro'
 import ActiveOrders from '../components/ActiveOrders.astro'
+import Notifications from '../components/Notifications.astro'
 
 import menu from '../data/menu.json'
 ---
 
 <Layout title="Welcome to Alpine Coffee.">
-	<main class="flex gap-32 justify-center">
+	<main class="flex gap-32 justify-center relative">
 		<div id="menu" x-data class="space-y-4 w-96">
 			<div class="relative text-center">
 				<span class="text-center text-slate-200 bg-slate-950 relative z-10 px-4">The Menu</span>
@@ -37,7 +38,8 @@ import menu from '../data/menu.json'
 			<Queue />
 			
 			<ActiveOrders />
-			
 		</div>
+
+		<Notifications />
 	</main>
 </Layout>
