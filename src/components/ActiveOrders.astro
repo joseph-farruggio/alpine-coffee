@@ -1,4 +1,4 @@
-<div class="space-y-4 w-96">
+<div class="space-y-4 lg:w-96">
 	<div class="relative text-center">
 		<span class="text-center text-slate-200 bg-slate-950 relative z-10 px-4">Active Orders</span>
 		<div class="h-px w-full bg-slate-800 absolute top-3"></div>
@@ -113,7 +113,7 @@
 
 		completeOrder(id, order) {
 			// Remove the order from the active orders
-			this.activeOrders[id] = {title: null, waitTime: 0}
+			this.activeOrders[id] = {title: null, waitTime: 0, customer: null}
 			this.$dispatch('order-complete', order)
 
 			// If there are any orders in the queue, make the next one
