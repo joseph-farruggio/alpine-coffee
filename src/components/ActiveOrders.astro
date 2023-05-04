@@ -5,12 +5,12 @@
 	</div>
 	
 	<template x-for="(barista, index) in ['Barista #1', 'Barista #2', 'Trainee (50% slower)']">
-		<div class="">
+		<div>
 			<span class="bg-cyan-400/10 text-cyan-300 px-3 py-1 rounded-full ring-1 ring-instet ring-cyan-400/30" x-text="barista"></span>
 			<div class="border border-slate-800 bg-slate-900 p-4 rounded-lg h-28 text-slate-50 mt-3">
-				<div 
+				<template x-if="activeOrders[index] != null" 
 					class="h-full"
-					x-show="activeOrders[index].title != null"
+					x-show="activeOrders[index] != null"
 					x-transition:enter="transition ease-out duration-300 transform"
 					x-transition:enter-start="-translate-y-2 opacity-0"
 					x-transition:enter-end="translate-y-0 opacity-100"
@@ -18,23 +18,24 @@
 					x-transition:leave-start="translate-y-0 opacity-100"
 					x-transition:leave-end="-translate-y-2 opacity-0">
 					<div class="flex flex-col justify-between h-full">
-						<span x-text="activeOrders[index].title"></span>
-						<span class="text-slate-500" x-text="`Customer: ${activeOrders[index].customer}`"></span>
+						<span x-text="activeOrders[index]?.title"></span>
+						<span class="text-slate-500" x-text="`Customer: ${activeOrders[index]?.customer}`"></span>
 
 						<div class="w-full bg-cyan-900 h-2 rounded-lg">
 							<div 
-								class="progress-bar bg-cyan-400 w-full h-full rounded-lg" 
-								x-bind:style="index < 2 ?  `animation-duration: ${activeOrders[index].waitTime * 1}s` : `animation-duration: ${activeOrders[index].waitTime * 1.5}s`"></div>
+								:class="activeOrders[index] != null && 'animate-progress-bar'"
+								class="bg-cyan-400 w-full h-full rounded-lg" 
+								x-bind:style="index < 2 ?  `animation-duration: ${activeOrders[index]?.waitTime * 1}s` : `animation-duration: ${activeOrders[index]?.waitTime * 1.5}s`"></div>
 						</div>
 					</div>
-				</div>
+				</template>
 			</div>
 		</div>
 	</template>
 </div>
 
 <style>
-    .progress-bar {
+    .animate-progress-bar {
         animation-name: decreaseWidth;
         animation-fill-mode: backwards;
     }
@@ -56,9 +57,9 @@
 		queue: [],
 
 		activeOrders: {
-			0: {title: null, waitTime: 0, customer: null},
-			1: {title: null, waitTime: 0, customer: null},
-			2: {title: null, waitTime: 0, customer: null}
+			0: null,
+			1: null,
+			2: null
 		},
 
 		makeCoffee(item = null) {
@@ -67,7 +68,7 @@
 			let foundNull = false
 			for (const [key, order] of Object.entries(this.activeOrders)) {
 				// If barista is not available, skip
-				if (order.title !== null) {
+				if (order !== null) {
 					continue
 				}
 
@@ -78,7 +79,7 @@
 				if (item === null) {
 					item = this.queue[0]
 
-					// Create delay for the order to be made
+					// Delay the order to be made for UI smoothness
 					setTimeout( function() {
 						this.queue.shift()
 						this.activeOrders[key] = item
@@ -113,7 +114,7 @@
 
 		completeOrder(id, order) {
 			// Remove the order from the active orders
-			this.activeOrders[id] = {title: null, waitTime: 0, customer: null}
+			this.activeOrders[id] = null
 			this.$dispatch('order-complete', order)
 
 			// If there are any orders in the queue, make the next one
