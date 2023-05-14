@@ -1,45 +1,196 @@
 ---
 import Layout from '../layouts/Layout.astro'
+import Menu from '../components/Menu.astro'
 import Queue from '../components/Queue.astro'
 import ActiveOrders from '../components/ActiveOrders.astro'
 import Notifications from '../components/Notifications.astro'
-
-import menu from '../data/menu.json'
 ---
 
 <Layout title="Welcome to Alpine Coffee.">
-	<main class="flex gap-32 justify-center relative">
-		<div id="menu" x-data class="space-y-4 w-96">
-			<div class="relative text-center">
-				<span class="text-center text-slate-200 bg-slate-950 relative z-10 px-4">The Menu</span>
-				<div class="h-px w-full bg-slate-800 absolute top-3"></div>
-			</div>
-			<div class="divide-y divide-slate-900">
-				{menu.map(drink => (
-				<button  
-					x-on:click={`$dispatch('order-added', ${JSON.stringify(drink)})`}
-					class="flex items-center gap-4 px-4 py-8 text-left transition hover:bg-slate-900/60">
-					<img src={drink.image} alt={drink.title} class="h-20 w-20 rounded-full">
-					
-					<div>
-						<h2 class="font-bold text-lg text-slate-300">{drink.title}</h2>
-						<p class="text-slate-500 line-clamp-2">{drink.description}</p>
-						<div class="flex items-center gap-4 text-slate-300 mt-2">
-							<span>Price: ${drink.price}</span>
-							<span>Time: {drink.waitTime} seconds</span>
-						</div>
-					</div>
-				</button>
-			))}
-			</div>
-		</div>
-
-		<div id="queue" x-data="queue" class="flex gap-32"  @order-added.window="makeCoffee($event.detail)">
-			<Queue />
-			
-			<ActiveOrders />
-		</div>
-
+	<main x-data="coffeeShop" @order-added.window="placeOrder($event.detail.drink, $event.detail.customer)" class="flex gap-32 justify-center relative">
+		<Menu />
+		<Queue />
+		<ActiveOrders />
 		<Notifications />
 	</main>
 </Layout>
+
+<script>
+	import Alpine from 'alpinejs'
+	import persist from '@alpinejs/persist'
+ 
+	Alpine.plugin(persist)
+
+	Alpine.data('coffeeShop', function() {
+		return {
+			queue: this.$persist([]),
+
+			baristas: this.$persist({
+				1: {},
+				2: {},
+				3: {}
+			}),
+
+			customer: null,
+
+			placeOrder(order) {
+				// Save the customer name to the order
+				order.customer = order.customer ? order.customer : this.customer
+				
+				// Set a random ID to the order if one doesn't exist
+				order.id = order.id ? order.id : Math.floor(Math.random() * 1000000)
+
+				const barista = this.findOpenBarista()
+				
+				// If there are no open baristas, add the order to the queue
+				if (barista === false) {
+					this.queue.push(order)
+					return
+				}
+
+				this.makeCoffee(order, barista)
+			},
+
+			findOpenBarista() {
+				for (let key in this.baristas) {
+					if (!this.baristaIsBusy(key)) {
+						return key
+					}
+				}
+				
+				// No open baristas
+				return false
+			},
+
+			makeCoffee(order = null, baristaKey) {
+				// If no order is passed, get the first order in the queue
+				if (order === null) {
+					order = this.queue[0]
+				} 
+
+				
+				// Delay moving the order out of the queue to be after the barista has finished
+				setTimeout( () => {
+					this.queue.shift()
+					this.baristas[baristaKey] = order
+				}, 300)
+			
+				this.completeOrder(order, baristaKey)
+			},
+
+			completeOrder(order, baristaKey) {
+				// Set wait for the order to be completed
+				// Trainee is 50% slower
+				let wait = baristaKey === 2 ? (order.waitTime * 1000) * 1.5 : order.waitTime * 1000
+				
+				// Complete the order after the wait time
+				setTimeout( () => {
+					this.baristas[baristaKey] = {}
+					// Remove the order from the active orders
+					this.$dispatch('order-complete', order)
+
+					// If there are any orders in the queue, make the next one
+					if (this.queue.length > 0) {
+						let nextOrder = this.queue[0]
+						
+						this.placeOrder(nextOrder)
+					}	
+				}, wait)
+
+				
+			},
+
+			baristaIsBusy(key) {
+				if (this.baristas[key] === undefined) {
+					return false
+				}
+
+				return Object.keys(this.baristas[key]).length > 0
+			},
+
+			checkOnInit() {
+				let queueIndex = 0
+				
+				// Look for the first non-null barista and resume making coffee
+				Object.keys(this.baristas).forEach((key) => {
+					if (this.baristaIsBusy(key)) {
+						this.completeOrder(this.baristas[key], key)
+						return
+					}
+
+					if (this.queue.length > 0) {
+						if (this.baristaIsBusy(key) && queueIndex < this.queue.length) {
+							const order = this.queue[queueIndex]
+							this.makeCoffee(order, key)
+							queueIndex++
+						} else {
+							return
+						}
+					}
+				})
+			},
+
+			init() {
+				// Easily access Alpine data and methods from the console
+				window.App = this.$data
+
+				if (window.location.search.includes('clear')) {
+					this.queue = []
+					this.baristas[0] = {}
+					this.baristas[1] = {}
+					this.baristas[2] = {}
+				}
+
+				if (window.location.search.includes('test')) {
+					this.queue = [
+						{
+							"title": "Black Coffee",
+							"description": "Our classic black coffee, made with freshly brewed Arabica beans.",
+							"type": "hot",
+							"price": 2.50,
+							"waitTime": 4,
+							"customer": "Third",
+							"image": "/coffee/black-coffee.jpg",
+							"id": 4
+						}
+					]
+
+					this.baristas = {
+						0: {
+							"title": "Black Coffee",
+							"description": "Our classic black coffee, made with freshly brewed Arabica beans.",
+							"type": "hot",
+							"price": 2.50,
+							"waitTime": 1,
+							"customer": "First",
+							"image": "/coffee/black-coffee.jpg",
+							"id": 1
+						},
+						1: {
+							"title": "Black Coffee",
+							"description": "Our classic black coffee, made with freshly brewed Arabica beans.",
+							"type": "hot",
+							"price": 2.50,
+							"waitTime": 4,
+							"customer": "Second",
+							"image": "/coffee/black-coffee.jpg",
+							"id": 2
+						},
+						2: {
+							"title": "Black Coffee",
+							"description": "Our classic black coffee, made with freshly brewed Arabica beans.",
+							"type": "hot",
+							"price": 2.50,
+							"waitTime": 20,
+							"customer": "Fourth",
+							"image": "/coffee/black-coffee.jpg",
+							"id": 3
+						}
+					}
+				}
+
+				this.checkOnInit()
+			}
+		}
+	})
+</script>

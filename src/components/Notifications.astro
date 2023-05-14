@@ -1,5 +1,5 @@
 <div x-data="notifications" class="fixed right-3 bottom-3 flex flex-col gap-y-4 w-80" @order-complete.window="push($event.detail)">
-    <template x-for="order in notifications" :key="order.id">
+    <template x-for="notication in notifications" :key="notication.id">
         <div 
             x-data="{ show: false }"
             x-init="setTimeout(() => show = true, 50); setTimeout(() => show = false, 3000)"
@@ -11,7 +11,7 @@
             x-transition:leave-start="opacity-100 transform translate-x-0 scale-100"
             x-transition:leave-end="opacity-0 transform translate-x-20 scale-90"
             class="bg-cyan-400/10 text-cyan-300 px-2 py-2 rounded-lg ring-1 ring-instet ring-cyan-400/30" 
-            x-text="`${order.customer}, your ${order.title.toLowerCase()} is ready.`"></div>  
+            x-text="notication.message"></div>  
     </template>
 </div>
 
@@ -21,15 +21,20 @@
     Alpine.data('notifications', () => ({
         notifications: [],
         push(order) {
+            let notication = {
+                id: order.id,
+                message: order.customer ? `${order.customer}, your ${order.title.toLowerCase()} is ready.` : `A ${order.title.toLowerCase()} is ready.`
+            }
+            
             order.deleted = false
-            this.notifications.push(order)
+            this.notifications.push(notication)
             
             // Notifications are shown/hidden with their own timer
             // This just cleans up the array
-            setTimeout( function() {
+            setTimeout( () => {
                 // remove items by id
                 this.notifications = this.notifications.filter(item => item.id !== order.id)
-            }.bind(this), 5000)
+            }, 5000)
         }
     }))
 </script>

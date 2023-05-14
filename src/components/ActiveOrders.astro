@@ -8,9 +8,9 @@
 		<div>
 			<span class="bg-cyan-400/10 text-cyan-300 px-3 py-1 rounded-full ring-1 ring-instet ring-cyan-400/30" x-text="barista"></span>
 			<div class="border border-slate-800 bg-slate-900 p-4 rounded-lg h-28 text-slate-50 mt-3">
-				<template x-if="activeOrders[index] != null" 
+				<template x-if="baristaIsBusy(index)" 
 					class="h-full"
-					x-show="activeOrders[index] != null"
+					x-show="baristaIsBusy(index)"
 					x-transition:enter="transition ease-out duration-300 transform"
 					x-transition:enter-start="-translate-y-2 opacity-0"
 					x-transition:enter-end="translate-y-0 opacity-100"
@@ -18,14 +18,14 @@
 					x-transition:leave-start="translate-y-0 opacity-100"
 					x-transition:leave-end="-translate-y-2 opacity-0">
 					<div class="flex flex-col justify-between h-full">
-						<span x-text="activeOrders[index]?.title"></span>
-						<span class="text-slate-500" x-text="`Customer: ${activeOrders[index]?.customer}`"></span>
+						<span x-text="baristas[index]?.title"></span>
+						<span x-show="baristas[index]?.customer" class="text-slate-500" x-text="`Customer: ${baristas[index]?.customer}`"></span>
 
 						<div class="w-full bg-cyan-900 h-2 rounded-lg">
 							<div 
-								:class="activeOrders[index] != null && 'animate-progress-bar'"
+								:class="baristas[index] != null && 'animate-progress-bar'"
 								class="bg-cyan-400 w-full h-full rounded-lg" 
-								x-bind:style="index < 2 ?  `animation-duration: ${activeOrders[index]?.waitTime * 1}s` : `animation-duration: ${activeOrders[index]?.waitTime * 1.5}s`"></div>
+								x-bind:style="index < 2 ?  `animation-duration: ${baristas[index]?.waitTime * 1}s` : `animation-duration: ${baristas[index]?.waitTime * 1.5}s`"></div>
 						</div>
 					</div>
 				</template>
@@ -49,107 +49,3 @@
         }
     }
 </style>
-
-<script>
-	import Alpine from 'alpinejs'
-
-	Alpine.data('queue', () => ({
-		queue: [],
-
-		activeOrders: {
-			0: null,
-			1: null,
-			2: null
-		},
-
-		makeCoffee(item = null) {
-			// Only three active orders can be worked on at a time
-			// Loop through the baristas and find one that is available
-			let foundNull = false
-			for (const [key, order] of Object.entries(this.activeOrders)) {
-				// If barista is not available, skip
-				if (order !== null) {
-					continue
-				}
-
-				foundNull = true
-				
-				// Found a barista that is available
-				// Set item to the first item in the queue if one wasn't passed in
-				if (item === null) {
-					item = this.queue[0]
-
-					// Delay the order to be made for UI smoothness
-					setTimeout( function() {
-						this.queue.shift()
-						this.activeOrders[key] = item
-					}.bind(this), 300)
-				} else {
-					this.activeOrders[key] = item
-				}
-
-				// Set a random customer to the order
-				item.customer = this.randomeName()
-
-				// Set a random ID to the order
-				item.id = Math.floor(Math.random() * 1000000000)
-				
-				// Set wait for the order to be completed
-				// Trainee is 50% slower
-				let wait = parseInt(key) === 2 ? (item.waitTime * 1000) * 1.5 : item.waitTime * 1000
-				
-				// Complete the order after the wait time
-				setTimeout( function() {
-					this.completeOrder(key, item)
-				}.bind(this), wait)
-				break
-			}
-
-			// No baristas are available, add the order to the queue
-			if (!foundNull) {
-				this.queue.push(item)
-			}
-			
-		},
-
-		completeOrder(id, order) {
-			// Remove the order from the active orders
-			this.activeOrders[id] = null
-			this.$dispatch('order-complete', order)
-
-			// If there are any orders in the queue, make the next one
-			if (this.queue.length > 0) {
-				this.makeCoffee()
-			}	
-		},
-
-		// Random first and last name
-		randomeName() {
-			const firstNames = [
-				'Emma',
-				'Noah',
-				'Olivia',
-				'Liam',
-				'Ava',
-				'William',
-				'Sophia',
-				'Mason',
-				'Isabella',
-				'James',
-				'Mia',
-				'Benjamin',
-				'Charlotte',
-				'Jacob',
-				'Amelia',
-				'Michael',
-				'Harper',
-				'Elijah',
-				'Evelyn',
-				'Ethan'
-			]
-			
-
-			return `${firstNames[Math.floor(Math.random() * firstNames.length)]}`
-		}
-	}))
-</script>
