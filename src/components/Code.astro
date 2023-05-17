@@ -1,0 +1,9 @@
+---
+import '../../assets/css/prism.css'
+
+const {language} = Astro.props;
+---
+
+<pre class="bg-slate-950"><code data-language={`${language}`}><slot /></code></pre>
+
+<script is:inline src="/prism.js"></script>

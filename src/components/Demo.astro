@@ -1,0 +1,18 @@
+<section class="min-h-screen">
+	<h2 class="text-slate-600">
+		<slot name="title" />
+	</h2>
+	
+	<div class="max-w-2xl">
+		<slot name="description" />
+	</div>
+
+	<div class="flex flex-nowrap gap-x-20">
+		<div class="pt-6 max-w-xs w-full relative inline-block text-left">
+			<slot name="demo" />
+		</div>
+		<div class="w-full">
+			<slot name="code" />
+		</div>
+	</div>
+</section>

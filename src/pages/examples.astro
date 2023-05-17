@@ -1,0 +1,289 @@
+---
+import Layout from '../layouts/Layout.astro'
+import Demo from '../components/Demo.astro'
+import Example1 from '../code/example-1.md'
+import Example2 from '../code/example-2.md'
+import Example3 from '../code/example-3.md'
+import Example4 from '../code/example-4.md'
+import Example5 from '../code/example-5.md'
+---
+
+<Layout title="Welcome to Alpine Coffee.">
+	<main class="max-w-7xl mx-auto prose prose:invert xl:prose-xl">
+		<Demo>
+			<div slot="title"><span class="text-slate-300">x-model</span> and <span class="text-slate-300">x-text</span></div>
+			<div slot="demo">
+				<div x-data="{name: null, coffee: null}" class="max-w-xs pt-6">
+					<label>
+						<span class="block text-slate-300">Your name</span>
+						<input type="text" x-model="name" placeholder="Enter your name" class="w-full max-w-xs bg-slate-800 text-slate-50 placeholder:text-slate-500 px-4 py-2 rounded-lg border border-slate-700">
+					</label>
+
+					<label class="mt-8 block">
+						<span class="block text-slate-300 mt-4">Your favorite coffee</span>
+						<div class="relative">
+							<select x-model="coffee" class="block w-full bg-slate-800 text-slate-50 px-4 py-2 appearance-none rounded-lg border border-slate-700">
+								<option value="Select Coffee" hidden>Select Coffee</option>
+								<option value="Americano">Americano</option>
+								<option value="Cappuccino">Cappuccino</option>
+								<option value="Cortado">Cortado</option>
+								<option value="Cold Brew">Cold Brew</option>
+								<option value="Latte">Latte</option>
+							</select>
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 absolute top-4 right-3"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+						</div>
+					</label>
+					
+
+					<p>Hey! My name is <span x-text="name || '${name}'" :class="!name && 'text-cyan-400'"></span> and my favorite coffee to drink is the <span x-text="coffee || '${coffee}'" :class="!coffee && 'text-cyan-400'"></span>.</p>
+				</div>
+			</div>
+			<Example1 slot="code" />
+		</Demo>
+
+		<Demo>
+			<div slot="title"><span class="text-slate-300">x-show</span> and <span class="text-slate-300">x-transition</span></div>
+			<div slot="demo">
+				<div x-data="{open: false}" class="pt-6 max-w-xs w-full relative inline-block text-left">
+					<div class="max-w-xs">
+						<button @click="open = !open" type="button" class="inline-flex justify-center gap-x-1.5 rounded-md bg-slate-800 px-3 py-2 text-base font-semibold text-white shadow-sm ring-1 ring-inset ring-slate-700" id="menu-button" aria-expanded="true" aria-haspopup="true">
+							Options
+							<svg class="-mr-1 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+								<path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+							</svg>
+						</button>
+					</div>
+
+					<div 
+						x-show="open" 
+						x-transition:enter="transition ease-out duration-100"
+						x-transition:enter-start="transform opacity-0 scale-95"
+						x-transition:enter-end="transform opacity-100 scale-100"
+						x-transition:leave="transition ease-in duration-75"
+						x-transition:leave-start="transform opacity-100 scale-100"
+						x-transition:leave-end="transform opacity-0 scale-95"
+						class="absolute left-0 z-10 mt-2 w-56 origin-top-left divide-y divide-slate-700 rounded-md bg-slate-800 shadow-lg ring-1 ring-slate-500 ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+						<div class="py-1" role="none">
+						<a href="#" class="text-slate-300 group flex items-center px-4 py-2 text-sm hover:bg-slate-700 hover:text-slate-50" role="menuitem" tabindex="-1" id="menu-item-0">
+							<svg class="mr-3 h-5 w-5 text-slate-400 hover:text-slate-50" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+							<path d="M5.433 13.917l1.262-3.155A4 4 0 017.58 9.42l6.92-6.918a2.121 2.121 0 013 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 01-.65-.65z" />
+							<path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0010 3H4.75A2.75 2.75 0 002 5.75v9.5A2.75 2.75 0 004.75 18h9.5A2.75 2.75 0 0017 15.25V10a.75.75 0 00-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5z" />
+							</svg>
+							Edit
+						</a>
+						<a href="#" class="text-slate-300 group flex items-center px-4 py-2 text-sm hover:bg-slate-700 hover:text-slate-50" role="menuitem" tabindex="-1" id="menu-item-1">
+							<svg class="mr-3 h-5 w-5 text-slate-400 hover:text-slate-50" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+							<path d="M7 3.5A1.5 1.5 0 018.5 2h3.879a1.5 1.5 0 011.06.44l3.122 3.12A1.5 1.5 0 0117 6.622V12.5a1.5 1.5 0 01-1.5 1.5h-1v-3.379a3 3 0 00-.879-2.121L10.5 5.379A3 3 0 008.379 4.5H7v-1z" />
+							<path d="M4.5 6A1.5 1.5 0 003 7.5v9A1.5 1.5 0 004.5 18h7a1.5 1.5 0 001.5-1.5v-5.879a1.5 1.5 0 00-.44-1.06L9.44 6.439A1.5 1.5 0 008.378 6H4.5z" />
+							</svg>
+							Duplicate
+						</a>
+						</div>
+						<div class="py-1" role="none">
+						<a href="#" class="text-slate-300 group flex items-center px-4 py-2 text-sm hover:bg-slate-700 hover:text-slate-50" role="menuitem" tabindex="-1" id="menu-item-2">
+							<svg class="mr-3 h-5 w-5 text-slate-400 hover:text-slate-50" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+							<path d="M2 3a1 1 0 00-1 1v1a1 1 0 001 1h16a1 1 0 001-1V4a1 1 0 00-1-1H2z" />
+							<path fill-rule="evenodd" d="M2 7.5h16l-.811 7.71a2 2 0 01-1.99 1.79H4.802a2 2 0 01-1.99-1.79L2 7.5zM7 11a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z" clip-rule="evenodd" />
+							</svg>
+							Archive
+						</a>
+						<a href="#" class="text-slate-300 group flex items-center px-4 py-2 text-sm hover:bg-slate-700 hover:text-slate-50" role="menuitem" tabindex="-1" id="menu-item-3">
+							<svg class="mr-3 h-5 w-5 text-slate-400 hover:text-slate-50" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+							<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM6.75 9.25a.75.75 0 000 1.5h4.59l-2.1 1.95a.75.75 0 001.02 1.1l3.5-3.25a.75.75 0 000-1.1l-3.5-3.25a.75.75 0 10-1.02 1.1l2.1 1.95H6.75z" clip-rule="evenodd" />
+							</svg>
+							Move
+						</a>
+						</div>
+						<div class="py-1" role="none">
+						<a href="#" class="text-slate-300 group flex items-center px-4 py-2 text-sm hover:bg-slate-700 hover:text-slate-50" role="menuitem" tabindex="-1" id="menu-item-4">
+							<svg class="mr-3 h-5 w-5 text-slate-400 hover:text-slate-50" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+							<path d="M11 5a3 3 0 11-6 0 3 3 0 016 0zM2.615 16.428a1.224 1.224 0 01-.569-1.175 6.002 6.002 0 0111.908 0c.058.467-.172.92-.57 1.174A9.953 9.953 0 018 18a9.953 9.953 0 01-5.385-1.572zM16.25 5.75a.75.75 0 00-1.5 0v2h-2a.75.75 0 000 1.5h2v2a.75.75 0 001.5 0v-2h2a.75.75 0 000-1.5h-2v-2z" />
+							</svg>
+							Share
+						</a>
+						<a href="#" class="text-slate-300 group flex items-center px-4 py-2 text-sm hover:bg-slate-700 hover:text-slate-50" role="menuitem" tabindex="-1" id="menu-item-5">
+							<svg class="mr-3 h-5 w-5 text-slate-400 hover:text-slate-50" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+							<path d="M9.653 16.915l-.005-.003-.019-.01a20.759 20.759 0 01-1.162-.682 22.045 22.045 0 01-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 018-2.828A4.5 4.5 0 0118 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 01-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 01-.69.001l-.002-.001z" />
+							</svg>
+							Add to favorites
+						</a>
+						</div>
+						<div class="py-1" role="none">
+						<a href="#" class="text-slate-300 group flex items-center px-4 py-2 text-sm hover:bg-slate-700 hover:text-slate-50" role="menuitem" tabindex="-1" id="menu-item-6">
+							<svg class="mr-3 h-5 w-5 text-slate-400 hover:text-slate-50" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+							<path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd" />
+							</svg>
+							Delete
+						</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<Example2 slot="code" />
+		</Demo>
+
+		<Demo>
+			<div slot="title"><span class="text-slate-300">x-bind</span> for conditional classes</div>
+			<div slot="demo">
+				<div x-data="{color: 'red'}" class="pt-6 max-w-xs w-full relative inline-block text-left">
+					<div class="max-w-xs flex gap-3">
+						<button type="button" @click="color = 'red'" class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium focus:outline-none" :class="color == 'red' ? 'bg-slate-50 text-slate-900 hover:text-slate-900' : 'bg-slate-700 text-slate-50 hover:text-slate-50 hover:bg-slate-800'">
+							Red
+						</button>
+						<button type="button" @click="color = 'green'" class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium focus:outline-none" :class="color == 'green' ? 'bg-slate-50 text-slate-900 hover:text-slate-900' : 'bg-slate-700 text-slate-50 hover:text-slate-50 hover:bg-slate-800'">
+							Green
+						</button>
+					</div>
+
+					<div 
+						class="mt-6 flex items-center justify-center rounded-lg text-white"
+						:class="color == 'red' ? 'bg-red-500' : 'bg-green-500'">
+						<p>The current color is <span x-text="color"></span>.</p>
+					</div>
+				</div>
+			</div>
+			<Example3 slot="code" />
+		</Demo>
+
+		<Demo>
+			<div slot="title"><span class="text-slate-300">x-for</span> - looping arrays</div>
+			<div slot="demo">
+				<div x-data="{people: [{name: 'John Harrison', avatar: 'https://i.pravatar.cc/150?img=52', job: 'CTO of ACME'}, {name: 'Alex White', avatar: 'https://i.pravatar.cc/150?img=12', job: 'Marketing Intern'}, {name: 'Sara West', avatar: 'https://i.pravatar.cc/150?img=49', job: 'Operations Manager'}]}">
+					<template x-for="person in people" :key="person.name">
+						<div class="flex items-center py-5">
+							<img :src="person.avatar" class="w-20 aspect-square rounded-xl mr-4 !my-0">
+							<div>
+								<p class="text-slate-200 leading-none mb-0" x-text="person.name"></p>
+								<p class="text-slate-400 text-sm mt-2" x-text="person.job"></p>
+							</div>
+						</div>
+					</template>
+				</div>
+			</div>
+			<Example4 slot="code" />
+		</Demo>
+
+		<Demo>
+			<div slot="title"><span class="text-slate-300">$dispatch</span> - A magic for browser events</div>
+			<div slot="description">
+				<div class="mb-6">Alpine has <span class="text-cyan-300">$magics</span> to abstract logic into a handy utility. Magics can simply return manipulated properties or they can be functions that take in parameters.</div>
+			</div>
+			<div slot="demo">
+				<div
+					x-data="notify()"
+					@notify.window="add($event)"
+					class="fixed bottom-0 right-0 flex w-full max-w-xs flex-col space-y-4 pr-4 pb-4 sm:justify-start"
+					role="status"
+					aria-live="polite"
+					>
+					<!-- Notification -->
+					<template x-for="notification in notifications" :key="notification.id">
+						<div
+							x-data="notifications()"
+							x-show="show"
+							x-transition.duration.500ms
+							class="pointer-events-auto relative w-full max-w-sm rounded-md border border-gray-200 bg-white py-2 pl-6 pr-4 shadow-lg"
+						>
+							<div class="flex items-center">
+								<!-- Icons -->
+								<div x-show="notification.type === 'info'" class="flex-shrink-0">
+									<span aria-hidden="true" class="inline-flex h-6 w-6 items-center justify-center rounded-full border-2 border-gray-400 text-xl font-bold text-gray-400">!</span>
+									<span class="sr-only">Information:</span>
+								</div>
+
+								<div x-show="notification.type === 'success'" class="flex-shrink-0">
+									<span aria-hidden="true" class="inline-flex h-6 w-6 items-center justify-center rounded-full border-2 border-green-600 text-lg font-bold text-green-600">&check;</span>
+									<span class="sr-only">Success:</span>
+								</div>
+
+								<div x-show="notification.type === 'error'" class="flex-shrink-0">
+									<span aria-hidden="true" class="inline-flex h-6 w-6 items-center justify-center rounded-full border-2 border-red-600 text-lg font-bold text-red-600">&times;</span>
+									<span class="sr-only">Error:</span>
+								</div>
+
+								<!-- Text -->
+								<div class="ml-3 w-0 flex-1 pt-0.5">
+									<p x-text="notification.content" class="text-sm font-medium leading-5 text-gray-900"></p>
+								</div>
+
+								<!-- Remove button -->
+								<div class="ml-4 flex flex-shrink-0">
+									<button @click="transitionOut()" type="button" class="inline-flex text-gray-400">
+										<svg aria-hidden class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+											<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+										</svg>
+										<span class="sr-only">Close notification</span>
+									</button>
+								</div>
+							</div>
+						</div>
+					</template>
+				</div>
+
+				<!-- Examples of how to dispatch the `notify` event with variable text and type -->
+				<form x-data="{content: null, type: null}"
+					class="max-w-sm w-full"
+					x-on:submit.prevent="$dispatch('notify', { content, type })">
+					<div>
+						<label>
+							<span class="block text-slate-300">Message</span>
+							<input type="text" x-model="content" placeholder="Enter a message" class="w-full max-w-xs bg-slate-800 text-slate-50 placeholder:text-slate-500 px-4 py-2 rounded-lg border border-slate-700">
+						</label>
+					</div>
+
+					<label class="mt-8 block">
+						<span class="block text-slate-300 mt-4">Message Type</span>
+						<div class="relative">
+							<select x-model="type" class="block w-full bg-slate-800 text-slate-50 px-4 py-2 appearance-none rounded-lg border border-slate-700">
+								<option value="select" hidden>Select event type</option>
+								<option value="info">Info</option>
+								<option value="success">Success</option>
+								<option value="error">Error</option>
+							</select>
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 absolute top-4 right-3"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+						</div>
+					</label>
+
+					<button class="mt-6 inline-flex items-center rounded-md bg-blue-400/10 px-3 py-2 text-lg font-medium text-blue-400 ring-1 ring-inset ring-blue-400/30 transition-colors hover:bg-blue-400/30 hover:text-blue-50">
+						Dispatch notification
+					</button>
+				</form>
+
+				<script>
+					document.addEventListener('alpine:init', () => {
+						Alpine.data('notify', () => ({
+							notifications: [],
+							add(e) {
+								this.notifications.push({
+									id: e.timeStamp,
+									type: e.detail.type,
+									content: e.detail.content,
+								})
+							},
+							remove(notification) {
+								this.notifications = this.notifications.filter(i => i.id !== notification.id)
+							}
+						}))
+
+						Alpine.data('notifications', () => ({
+							show: false,
+							init() {
+								this.$nextTick(() => this.show = true)
+
+								setTimeout(() => this.transitionOut(), 2000)
+							},
+							transitionOut() {
+								this.show = false
+
+								setTimeout(() => this.remove(this.notification), 500)
+							}
+						}))
+					})
+				</script>
+			</div>
+			<div slot="code">
+				<Example5 />
+			</div>
+		</Demo>
+	</main>
+</Layout>

@@ -40,15 +40,15 @@ import Notifications from '../components/Notifications.astro'
 				// Set a random ID to the order if one doesn't exist
 				order.id = order.id ? order.id : Math.floor(Math.random() * 1000000)
 
-				const barista = this.findOpenBarista()
+				const baristaKey = this.findOpenBarista()
 				
 				// If there are no open baristas, add the order to the queue
-				if (barista === false) {
+				if (baristaKey === false) {
 					this.queue.push(order)
 					return
 				}
 
-				this.makeCoffee(order, barista)
+				this.makeCoffee(order, baristaKey)
 			},
 
 			findOpenBarista() {
@@ -68,36 +68,45 @@ import Notifications from '../components/Notifications.astro'
 					order = this.queue[0]
 				} 
 
-				
 				// Delay moving the order out of the queue to be after the barista has finished
-				setTimeout( () => {
-					this.queue.shift()
-					this.baristas[baristaKey] = order
-				}, 300)
+				this.queue.shift()
+				this.baristas[baristaKey] = order
 			
 				this.completeOrder(order, baristaKey)
 			},
 
 			completeOrder(order, baristaKey) {
+				order.startTime = new Date().getTime()
+
 				// Set wait for the order to be completed
 				// Trainee is 50% slower
-				let wait = baristaKey === 2 ? (order.waitTime * 1000) * 1.5 : order.waitTime * 1000
+				let wait = baristaKey == 2 ? (order.waitTime * 1500) : order.waitTime * 1000
 				
-				// Complete the order after the wait time
-				setTimeout( () => {
-					this.baristas[baristaKey] = {}
-					// Remove the order from the active orders
-					this.$dispatch('order-complete', order)
+				// create an interval to check every second if the order is complete based on the wait time and the startTime
+				let interval = setInterval(() => {
+					let now = new Date().getTime()
+					let timeLeft = order.startTime + wait - now
 
-					// If there are any orders in the queue, make the next one
-					if (this.queue.length > 0) {
-						let nextOrder = this.queue[0]
+					// If the order is complete, clear the interval
+					if (timeLeft <= 0) {
+						clearInterval(interval)
+						this.baristas[baristaKey] = {}
 						
-						this.placeOrder(nextOrder)
-					}	
-				}, wait)
+						// Remove the order from the active orders
+						this.$dispatch('order-complete', order)
 
-				
+						// If there are any orders in the queue, make the next one
+						if (this.queue.length > 0) {
+							let nextOrder = this.queue[0]
+							
+							this.placeOrder(nextOrder)
+						}	
+						return
+					}
+
+					// Update the order with the time left
+					this.baristas[baristaKey].timeLeft = timeLeft
+				}, 50)				
 			},
 
 			baristaIsBusy(key) {
@@ -106,6 +115,14 @@ import Notifications from '../components/Notifications.astro'
 				}
 
 				return Object.keys(this.baristas[key]).length > 0
+			},
+
+			completionPercentage(startTime, timeLeft) {
+				const currentTime = Date.now();
+				const elapsedTime = currentTime - startTime;
+				const totalTime = elapsedTime + timeLeft;
+				const percentageCompleted = (elapsedTime / totalTime) * 100;
+				return percentageCompleted.toFixed(2); // Optional: Round to two decimal places
 			},
 
 			checkOnInit() {
@@ -130,18 +147,24 @@ import Notifications from '../components/Notifications.astro'
 				})
 			},
 
+			clear() {
+				this.queue = []
+				this.baristas[0] = {}
+				this.baristas[1] = {}
+				this.baristas[2] = {}
+			},
+
 			init() {
 				// Easily access Alpine data and methods from the console
 				window.App = this.$data
 
 				if (window.location.search.includes('clear')) {
-					this.queue = []
-					this.baristas[0] = {}
-					this.baristas[1] = {}
-					this.baristas[2] = {}
+					this.clear()
 				}
 
 				if (window.location.search.includes('test')) {
+					this.clear()
+
 					this.queue = [
 						{
 							"title": "Black Coffee",
@@ -152,6 +175,13 @@ import Notifications from '../components/Notifications.astro'
 							"customer": "Third",
 							"image": "/coffee/black-coffee.jpg",
 							"id": 4
+						},
+						{
+							"title": "Iced Coffee",
+							"waitTime": 8,
+							"customer": "Fourth",
+							"image": "/coffee/black-coffee.jpg",
+							"id": 5
 						}
 					]
 
@@ -182,7 +212,7 @@ import Notifications from '../components/Notifications.astro'
 							"type": "hot",
 							"price": 2.50,
 							"waitTime": 20,
-							"customer": "Fourth",
+							"customer": "Fifth",
 							"image": "/coffee/black-coffee.jpg",
 							"id": 3
 						}
